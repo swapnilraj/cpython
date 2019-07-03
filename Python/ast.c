@@ -2865,7 +2865,8 @@ ast_for_expr(struct compiling *c, const node *n)
        namedexpr_test: test [':=' test]
        test: or_test ['if' or_test 'else' test] | lambdef
        test_nocond: or_test | lambdef_nocond
-       or_test: and_test ('or' and_test)*
+       or_test: orand_test ('or' orand_test)*
+       orand_test: and_test ('orand' and_test)*
        and_test: not_test ('and' not_test)*
        not_test: 'not' not_test | comparison
        comparison: expr (comp_op expr)*
@@ -2899,6 +2900,7 @@ ast_for_expr(struct compiling *c, const node *n)
                 return ast_for_ifexpr(c, n);
             /* Fallthrough */
         case or_test:
+        case orand_test:
         case and_test:
             if (NCH(n) == 1) {
                 n = CHILD(n, 0);
@@ -2915,6 +2917,10 @@ ast_for_expr(struct compiling *c, const node *n)
             }
             if (!strcmp(STR(CHILD(n, 1)), "and"))
                 return BoolOp(And, seq, LINENO(n), n->n_col_offset,
+                              n->n_end_lineno, n->n_end_col_offset,
+                              c->c_arena);
+            else if (!strcmp(STR(CHILD(n, 1)), "orand"))
+                return BoolOp(Orand, seq, LINENO(n), n->n_col_offset,
                               n->n_end_lineno, n->n_end_col_offset,
                               c->c_arena);
             assert(!strcmp(STR(CHILD(n, 1)), "or"));
@@ -3183,6 +3189,7 @@ ast_for_call(struct compiling *c, const node *n, expr_ty func,
                 static const int name_tree[] = {
                     test,
                     or_test,
+                    orand_test,
                     and_test,
                     not_test,
                     comparison,

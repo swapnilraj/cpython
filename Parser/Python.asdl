@@ -97,7 +97,7 @@ module Python
           | ExtSlice(slice* dims)
           | Index(expr value)
 
-    boolop = And | Or
+    boolop = And | Or | Orand
 
     operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift
                  | RShift | BitOr | BitXor | BitAnd | FloorDiv

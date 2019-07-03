@@ -396,10 +396,11 @@ static char *Index_fields[]={
     "value",
 };
 static PyTypeObject *boolop_type;
-static PyObject *And_singleton, *Or_singleton;
+static PyObject *And_singleton, *Or_singleton, *Orand_singleton;
 static PyObject* ast2obj_boolop(boolop_ty);
 static PyTypeObject *And_type;
 static PyTypeObject *Or_type;
+static PyTypeObject *Orand_type;
 static PyTypeObject *operator_type;
 static PyObject *Add_singleton, *Sub_singleton, *Mult_singleton,
 *MatMult_singleton, *Div_singleton, *Mod_singleton, *Pow_singleton,
@@ -1017,6 +1018,10 @@ static int init_types(void)
     if (!Or_type) return 0;
     Or_singleton = PyType_GenericNew(Or_type, NULL, NULL);
     if (!Or_singleton) return 0;
+    Orand_type = make_type("Orand", boolop_type, NULL, 0);
+    if (!Orand_type) return 0;
+    Orand_singleton = PyType_GenericNew(Orand_type, NULL, NULL);
+    if (!Orand_singleton) return 0;
     operator_type = make_type("operator", &AST_type, NULL, 0);
     if (!operator_type) return 0;
     if (!add_attributes(operator_type, NULL, 0)) return 0;
@@ -3741,6 +3746,9 @@ PyObject* ast2obj_boolop(boolop_ty o)
         case Or:
             Py_INCREF(Or_singleton);
             return Or_singleton;
+        case Orand:
+            Py_INCREF(Orand_singleton);
+            return Orand_singleton;
         default:
             /* should never happen, but just in case ... */
             PyErr_Format(PyExc_SystemError, "unknown boolop found");
@@ -7804,6 +7812,14 @@ obj2ast_boolop(PyObject* obj, boolop_ty* out, PyArena* arena)
         *out = Or;
         return 0;
     }
+    isinstance = PyObject_IsInstance(obj, (PyObject *)Orand_type);
+    if (isinstance == -1) {
+        return 1;
+    }
+    if (isinstance) {
+        *out = Orand;
+        return 0;
+    }
 
     PyErr_Format(PyExc_TypeError, "expected some sort of boolop, but got %R", obj);
     return 1;
@@ -8914,6 +8930,8 @@ PyInit__ast(void)
         NULL;
     if (PyDict_SetItemString(d, "And", (PyObject*)And_type) < 0) return NULL;
     if (PyDict_SetItemString(d, "Or", (PyObject*)Or_type) < 0) return NULL;
+    if (PyDict_SetItemString(d, "Orand", (PyObject*)Orand_type) < 0) return
+        NULL;
     if (PyDict_SetItemString(d, "operator", (PyObject*)operator_type) < 0)
         return NULL;
     if (PyDict_SetItemString(d, "Add", (PyObject*)Add_type) < 0) return NULL;
