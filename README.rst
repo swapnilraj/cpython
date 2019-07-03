@@ -1,3 +1,26 @@
+My Changes
+==========
+
+I added a new boolean operator ``orand``, as the name very obviously imply
+the operator acts like ``and`` 50% of the time and as ``or`` the other
+times.
+
+Which leads to behaviour like this
+
+   ``Python 3.9.0a0 (heads/master-dirty:8b55981949, Jul  3 2019, 19:55:23)
+   [Clang 10.0.1 (clang-1001.0.46.4)] on darwin
+   Type "help", "copyright", "credits" or "license" for more information.
+   >>> True orand False
+   False
+   >>> True orand False
+   False
+   >>> True orand False
+   False
+   >>> True orand False
+   True
+   >>> True orand False
+   True``
+
 This is Python version 3.9.0 alpha 0
 ====================================
 
