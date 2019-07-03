@@ -3523,6 +3523,8 @@ compiler_boolop(struct compiler *c, expr_ty e)
     assert(e->kind == BoolOp_kind);
     if (e->v.BoolOp.op == And)
         jumpi = JUMP_IF_FALSE_OR_POP;
+    else if (e->v.BoolOp.op == Orand)
+        jumpi = rand() % 2 == 0 ? JUMP_IF_TRUE_OR_POP : JUMP_IF_FALSE_OR_POP;
     else
         jumpi = JUMP_IF_TRUE_OR_POP;
     end = compiler_new_block(c);
